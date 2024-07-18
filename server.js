@@ -1,7 +1,7 @@
 const express = require('express');
 const mysql = require('mysql2');
 const inquirer = require('inquirer');
-const fetch = require('node-fetch');
+
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -28,7 +28,7 @@ const getDepartments = () => {
   fetch('http://localhost:3001/api/departments')
     .then(response => response.json())
     .then(data => {
-      console.log('Departments:', data);
+      console.log('Departments:', data.data); 
     })
     .catch(error => {
       console.error('Error:', error);
@@ -37,24 +37,41 @@ const getDepartments = () => {
 
 const getRoles = () => {
   fetch('http://localhost:3001/api/roles')
-  .then(response => response.json())
-  .then(data => {
-    console.log('Roles:', data);
-  })
-  .catch(error => {
-    console.log('Error:', error);
-  });
+    .then(response => response.json())
+    .then(data => {
+      console.log('Roles:', data.data); 
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
 };
 
 const getEmployees = () => {
   fetch('http://localhost:3001/api/employees')
-  .then(response => response.json())
-  .then(data => {
-    console.log('Employees:', data);
+    .then(response => response.json())
+    .then(data => {
+      console.log('Employees:', data.data); 
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+};
+
+const addDepartment = (departmentName) => {
+  fetch('http://localhost:3001/api/new-department', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ name: departmentName })
   })
-  .catch(error => {
-    console.log('Error:', error);
-  });
+    .then(response => response.json())
+    .then(data => {
+      console.log('Department added:', data);
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
 };
 
 const checkAnswer = choice => {
@@ -64,6 +81,21 @@ const checkAnswer = choice => {
     getRoles();
   } else if (choice === 'view all employees') {
     getEmployees();
+  } else if (choice === 'add a department') {
+    inquirer
+      .prompt([
+        {
+          type: 'input',
+          message: 'What is the department name?',
+          name: 'department'
+        }
+      ])
+      .then(answers => {
+        addDepartment(answers.department); 
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
   } else {
     console.log('Thanks for answering');
   }
@@ -89,7 +121,7 @@ const promptUser = () => {
     ])
     .then(answers => {
       checkAnswer(answers.options);
-      promptUser();
+      promptUser(); 
     })
     .catch(error => {
       console.error('Error:', error);
@@ -98,7 +130,7 @@ const promptUser = () => {
 
 
 app.get('/api/departments', (req, res) => {
-  const sql = "SELECT * FROM department";
+  const sql = 'SELECT * FROM department';
 
   db.query(sql, (err, rows) => {
     if (err) {
@@ -113,7 +145,7 @@ app.get('/api/departments', (req, res) => {
 });
 
 app.get('/api/roles', (req, res) => {
-  const sql = "SELECT * FROM role";
+  const sql = 'SELECT * FROM role';
 
   db.query(sql, (err, rows) => {
     if (err) {
@@ -128,7 +160,7 @@ app.get('/api/roles', (req, res) => {
 });
 
 app.get('/api/employees', (req, res) => {
-  const sql = "SELECT * FROM employee";
+  const sql = 'SELECT * FROM employee';
 
   db.query(sql, (err, rows) => {
     if (err) {
@@ -142,11 +174,25 @@ app.get('/api/employees', (req, res) => {
   });
 });
 
+app.post('/api/new-department', (req, res) => {
+  const sql = 'INSERT INTO department (name) VALUES (?)';
+  const params = [req.body.name];
+
+  db.query(sql, params, (err, result) => {
+    if (err) {
+      res.status(400).json({ error: err.message });
+      return;
+    }
+    res.json({
+      message: 'Success!',
+      data: { name: req.body.name }
+    });
+  });
+});
 
 app.use((req, res) => {
   res.status(404).end();
 });
-
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
