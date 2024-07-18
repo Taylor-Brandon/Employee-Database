@@ -46,11 +46,24 @@ const getRoles = () => {
   });
 };
 
+const getEmployees = () => {
+  fetch('http://localhost:3001/api/employees')
+  .then(response => response.json())
+  .then(data => {
+    console.log('Employees:', data);
+  })
+  .catch(error => {
+    console.log('Error:', error);
+  });
+}
+
 const checkAnswer = choice => {
   if (choice === 'view all departments') {
     getDepartments();
   } else if (choice === 'view all roles') {
     getRoles();
+  } else if (choice === 'vieew all employees') {
+    getEmployees();
   } else {
     console.log('Thanks for answering');
   }
@@ -101,6 +114,21 @@ app.get('/api/departments', (req, res) => {
 
 app.get('/api/roles', (req, res) => {
   const sql = "SELECT * FROM role";
+
+  db.query(sql, (err, rows) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    res.json({
+      message: 'Success!',
+      data: rows
+    });
+  });
+});
+
+app.get('/api/employees', (req, res) => {
+  const sql = "SELECT * FROM employee";
 
   db.query(sql, (err, rows) => {
     if (err) {
