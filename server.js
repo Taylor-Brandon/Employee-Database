@@ -55,14 +55,14 @@ const getEmployees = () => {
   .catch(error => {
     console.log('Error:', error);
   });
-}
+};
 
 const checkAnswer = choice => {
   if (choice === 'view all departments') {
     getDepartments();
   } else if (choice === 'view all roles') {
     getRoles();
-  } else if (choice === 'vieew all employees') {
+  } else if (choice === 'view all employees') {
     getEmployees();
   } else {
     console.log('Thanks for answering');
