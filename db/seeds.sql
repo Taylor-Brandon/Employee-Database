@@ -9,7 +9,7 @@ VALUES  (001, "Potions"),
 INSERT INTO role (id, title, salary, department_id)
 VALUES  (001, "Potions Professor", 100000, 001),
         (002, "HeadMaster", 200000, 006),
-        (003, "Professor of Defense Against the Dark Arts", 150000, 002),
+        (003, "Professor of Dark Arts", 150000, 002),
         (004, "Muggle Studies", 75000, 006),
         (005, "Divination Instructor", 100000, 002),
         (006, "Herbology Professor", 100000, 005);
