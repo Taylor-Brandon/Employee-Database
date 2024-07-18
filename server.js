@@ -1,5 +1,5 @@
-const express = ('express');
-const mysql = ('mysql2');
+const express = require('express');
+const mysql = require('mysql2');
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -12,11 +12,25 @@ const db = mysql.createConnection(
       host: 'localhost',
       user: 'root',
       password: '*Pandazippo12',
-      database: 'movies_db'
+      database: 'employee_db'
     },
-    console.log(`Connected to the movies_db database.`)
+    console.log(`Connected to the employee_db database.`)
   );
 
+app.get('/api/departments', (req, res) => {
+  const sql = "SELECT * FROM department";
+
+  db.query(sql, (err, rows) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    } 
+      res.json({
+        message: 'Success!',
+        data: rows
+      });
+  });
+});
  
 
   app.use((req, res) => {
