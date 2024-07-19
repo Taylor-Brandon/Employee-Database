@@ -91,6 +91,23 @@ const addRole = (title, salary, department_id) => {
     });
 };
 
+const addEmployee = (first_name, last_name, role_id, manager_id) => {
+  fetch('http://localhost:3001/api/new-employee', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ first_name, last_name, role_id, manager_id })
+  })
+    .then(response => response.json())
+    .then(data => {
+      console.log('Employee added:', data);
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+};
+
 const checkAnswer = choice => {
   if (choice === 'view all departments') {
     getDepartments();
@@ -134,6 +151,36 @@ const checkAnswer = choice => {
       ])
       .then(answers => {
         addRole(answers.title, answers.salary, answers.department_id);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+    } else if (choice === 'add an employee') {
+      inquirer
+      .prompt([
+        {
+          type: 'input',
+          message: 'What is the first name of the employee?',
+          name: 'first_name'
+        },
+        {
+          type: 'input',
+          message: 'What is last name of the employee?',
+          name: 'last_name'
+        },
+        {
+          type: 'input',
+          message: 'What is the role id for this employee?',
+          name: 'role_id'
+        },
+        {
+          type: 'input',
+          message: 'What is the manager id for this employee?',
+          name: 'manager_id'
+        }
+      ])
+      .then(answers => {
+        addEmployee(answers.first_name, answers.last_name, answers.role_id, answers.manager_id);
       })
       .catch(error => {
         console.error('Error:', error);
@@ -243,6 +290,22 @@ app.post('/api/new-role', (req, res) => {
     res.json({
       message: 'Success!',
       data: { title: req.body.title, salary: req.body.salary, department_id: req.body.department_id }
+    });
+  });
+});
+
+app.post('/api/new-employee', (req, res) => {
+  const sql = 'INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)';
+  const params = [req.body.first_name, req.body.last_name, req.body.role_id, req.body.manager_id];
+
+  db.query(sql, params, (err, result) => {
+    if (err) {
+      res.status(400).json({ error: err.message });
+      return;
+    }
+    res.json({
+      message: 'Success!',
+      data: { first_name: req.body.first_name, last_name: req.body.last_name, role: req.body.role_id, manager: req.body.manager_id }
     });
   });
 });
