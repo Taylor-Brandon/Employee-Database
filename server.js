@@ -108,6 +108,23 @@ const addEmployee = (first_name, last_name, role_id, manager_id) => {
     });
 };
 
+const updateEmployee = (role_id) => {
+  fetch('http://localhost:3001/api/employee/:id', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ role_id })
+  })
+    .then(response => response.json())
+    .then(data => {
+      console.log('Role Updated:', data);
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+};
+
 const checkAnswer = choice => {
   if (choice === 'view all departments') {
     getDepartments();
@@ -181,6 +198,21 @@ const checkAnswer = choice => {
       ])
       .then(answers => {
         addEmployee(answers.first_name, answers.last_name, answers.role_id, answers.manager_id);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+    } else if (choice === 'update an employee') {
+      inquirer
+      .prompt([
+        {
+          type: 'input',
+          message: 'What role would you like to update the user to?',
+          name: 'role_id'
+        }
+      ])
+      .then(answers => {
+        updateEmployee(answers.role_id);
       })
       .catch(error => {
         console.error('Error:', error);
@@ -307,6 +339,27 @@ app.post('/api/new-employee', (req, res) => {
       message: 'Success!',
       data: { first_name: req.body.first_name, last_name: req.body.last_name, role: req.body.role_id, manager: req.body.manager_id }
     });
+  });
+});
+
+app.put('/api/employee/:id', (req, res) => {
+  const sql = `UPDATE employee SET role_id = ? WHERE id = ?`;
+  const params = [req.body.role_id, req.params.id];
+
+  db.query(sql, params, (err, result) => {
+    if (err) {
+      res.status(400).json({ error: err.message });
+    } else if (!result.affectedRows) {
+      res.json({
+        message: 'Employee not found'
+      });
+    } else {
+      res.json({
+        message: 'success',
+        data: req.body,
+        changes: result.affectedRows
+      });
+    }
   });
 });
 
